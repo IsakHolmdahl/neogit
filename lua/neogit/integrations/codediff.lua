@@ -41,43 +41,24 @@ function M.open(section_name, item_name, opts)
     -- Single commit (compare with parent)
     cmd = string.format("CodeDiff history %s^..%s", item_name, item_name)
   elseif section_name == "conflict" and item_name then
-    -- Specific conflict file
-    cmd = string.format("CodeDiff merge %s", vim.fn.fnameescape(item_name))
+    -- Specific conflict file - open it first then run merge command
+    local file_path = git.repo.worktree_root .. "/" .. item_name
+    vim.schedule(function()
+      vim.cmd("edit " .. vim.fn.fnameescape(file_path))
+      vim.cmd(string.format("CodeDiff merge %s", vim.fn.fnameescape(file_path)))
+    end)
+    return
   elseif section_name == "conflict" and not item_name then
     -- All conflicts
     cmd = "CodeDiff merge"
   elseif section_name == "worktree" and not item_name then
     -- Worktree diff (all changes)
     cmd = "CodeDiff"
-  elseif section_name == "staged" then
-    -- Staged changes
-    if opts.only and item_name then
-      -- Single staged file - compare working tree with HEAD
-      local file_path = git.repo.worktree_root .. "/" .. item_name
-      cmd = string.format("CodeDiff file HEAD %s", vim.fn.fnameescape(file_path))
-    else
-      -- All staged changes - compare staged area (index) with HEAD
-      cmd = "CodeDiff HEAD"
-    end
-  elseif section_name == "unstaged" then
-    -- Unstaged changes
-    if opts.only and item_name then
-      -- Single unstaged file - compare working tree with current buffer
-      local file_path = git.repo.worktree_root .. "/" .. item_name
-      -- Open the file and compare it with git HEAD version
-      vim.cmd("edit " .. vim.fn.fnameescape(file_path))
-      cmd = "CodeDiff file HEAD"
-    else
-      -- All unstaged changes
-      cmd = "CodeDiff"
-    end
-  elseif section_name == "merge" then
-    -- Merge conflicts
-    if opts.only and item_name then
-      cmd = string.format("CodeDiff merge %s", vim.fn.fnameescape(item_name))
-    else
-      cmd = "CodeDiff merge"
-    end
+  elseif section_name == "staged" or section_name == "unstaged" or section_name == "merge" then
+    -- For these sections, just show the general working directory diff
+    -- CodeDiff doesn't have the same fine-grained control as diffview for staged/unstaged
+    -- The opts.only flag might be set, but we'll just show all changes
+    cmd = "CodeDiff"
   elseif section_name == nil and item_name ~= nil then
     -- Commit without section
     cmd = string.format("CodeDiff history %s^..%s", item_name, item_name)
@@ -88,7 +69,9 @@ function M.open(section_name, item_name, opts)
 
   -- Execute the command
   if cmd then
-    vim.cmd(cmd)
+    vim.schedule(function()
+      vim.cmd(cmd)
+    end)
   end
 end
 
