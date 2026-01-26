@@ -34,6 +34,8 @@ Here's an example spec for [Lazy](https://github.com/folke/lazy.nvim), but you'r
   dependencies = {
     "nvim-lua/plenary.nvim",         -- required
     "sindrets/diffview.nvim",        -- optional - Diff integration
+    -- Alternative diff integration (choose one):
+    -- "esmuellert/codediff.nvim",   -- optional - VSCode-like diff interface
 
     -- Only one of these is needed.
     "nvim-telescope/telescope.nvim", -- optional
@@ -315,11 +317,18 @@ neogit.setup {
     -- If enabled, use telescope for menu selection rather than vim.ui.select.
     -- Allows multi-select and some things that vim.ui.select doesn't.
     telescope = nil,
-    -- Neogit only provides inline diffs. If you want a more traditional way to look at diffs, you can use `diffview`.
+    -- Neogit only provides inline diffs. If you want a more traditional way to look at diffs, you can use `diffview` or `codediff`.
     -- The diffview integration enables the diff popup.
     --
     -- Requires you to have `sindrets/diffview.nvim` installed.
     diffview = nil,
+
+    -- If enabled, uses CodeDiff for viewing diffs instead of diffview.
+    -- CodeDiff provides a VSCode-like diff interface with side-by-side comparison.
+    -- When both diffview and codediff are enabled, codediff takes priority.
+    --
+    -- Requires you to have `esmuellert/codediff.nvim` installed.
+    codediff = nil,
 
     -- If enabled, uses fzf-lua for menu selection. If the telescope integration
     -- is also selected then telescope is used instead
