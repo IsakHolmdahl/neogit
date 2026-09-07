@@ -122,6 +122,10 @@ You can configure neogit by running the `require('neogit').setup {}` function, p
 local neogit = require("neogit")
 
 neogit.setup {
+  -- Use Treesitter to apply syntax highlighting to diff hunks
+  treesitter_diff_highlight = true,
+  -- Apply word-diff highlights to diff hunks
+  word_diff_highlight = true,
   -- Hides the hints at the top of the status buffer
   disable_hint = false,
   -- Disables changing the buffer highlights based on where the cursor is.
@@ -132,6 +136,8 @@ neogit.setup {
   git_executable = "git",
   -- Offer to force push when branches diverge
   prompt_force_push = true,
+  -- Request confirmation when amending already published commits
+  prompt_amend_commit = true,
   -- Changes what mode the Commit Editor starts in. `true` will leave nvim in normal mode, `false` will change nvim to
   -- insert mode, and `"auto"` will change nvim to insert mode IF the commit message is empty, otherwise leaving it in
   -- normal mode.
@@ -149,6 +155,8 @@ neogit.setup {
   -- Show relative date by default. When set, use `strftime` to display dates
   commit_date_format = nil,
   log_date_format = nil,
+  -- When set, used to format the diff. Requires *baleia* to colorize text with ANSI escape sequences. An example for `Delta` is `{ 'delta', '--width', '117' }`. For `Delta`, hyperlinks must be disabled when called by `neogit`, for text to be colorized properly.
+  log_pager = nil,
   -- Show message with spinning animation when a git command is running.
   process_spinner = false,
   -- Used to generate URL's for branch popup action "pull request", "open commit" and "open tree"
@@ -299,6 +307,7 @@ neogit.setup {
   },
   popup = {
     kind = "split",
+    show_title = false,
   },
   stash = {
     kind = "tab",
@@ -345,6 +354,9 @@ neogit.setup {
     -- Requires you to have `folke/snacks.nvim` installed.
     snacks = nil,
   },
+  -- Which diff viewer to use. nil = auto-detect (tries diffview first, then codediff).
+  -- Can be "diffview" or "codediff".
+  diff_viewer = nil,
   sections = {
     -- Reverting/Cherry Picking
     sequencer = {
@@ -545,6 +557,13 @@ This works for just about everything that has an object-ID in git, and if you fi
 
 See the built-in documentation for a comprehensive list of highlight groups. If your theme doesn't style a particular group, we'll try our best to do a nice job.
 
+## Hooks
+
+Neogit supports hooks for the following actions:
+
+| Hook                | Description                    | Hook Data                 |
+| ------------------- | ------------------------------ | ------------------------- |
+| `PreBranchCheckout` | Before a branch is checked out | `{ branch_name: string }` |
 
 ## Events
 
